@@ -15,28 +15,10 @@ Demo Django project integrating **Razorpay Checkout (test mode)**.
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+
 ```
 
-Create a `.env` file (do **not** commit it):
 
-```env
-DJANGO_SECRET_KEY=django-insecure-change-me-in-development
-RAZORPAY_KEY_ID=rzp_test_...
-RAZORPAY_KEY_SECRET=...
-```
-
-Run migrations and start the server:
-
-```bash
-python3 manage.py migrate
-python3 manage.py runserver
-```
-
-Optional: seed demo products:
-
-```bash
-python3 manage.py seed_products --count 24
-```
 
 ## URLs
 
