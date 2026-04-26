@@ -5,278 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Store</title>
-    <style>
-        :root {
-            --bg: #f5f7f4;
-            --card: #ffffff;
-            --text: #0f172a;
-            --muted: #475569;
-            --border: #e5e7eb;
-            --brand: #166534;
-            --brand2: #14532d;
-            --success: #16a34a;
-            --leaf: #22c55e;
-            --leaf2: #86efac;
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            margin: 0;
-            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-            background: radial-gradient(1100px 700px at 15% -10%, #dcfce7 0%, transparent 55%),
-                        radial-gradient(900px 600px at 85% -20%, #ecfccb 0%, transparent 50%),
-                        var(--bg);
-            color: var(--text);
-        }
-
-        .container {
-            max-width: 1150px;
-            margin: 0 auto;
-            padding: 18px 16px 42px;
-        }
-
-        .topbar {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            backdrop-filter: blur(10px);
-            background: rgba(246, 247, 251, 0.75);
-            border-bottom: 1px solid rgba(226, 232, 240, 0.9);
-        }
-
-        .topbar-inner {
-            max-width: 1150px;
-            margin: 0 auto;
-            padding: 14px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 14px;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 900;
-            letter-spacing: 0.2px;
-            text-decoration: none;
-            color: var(--text);
-            white-space: nowrap;
-        }
-
-        .logo {
-            width: 34px;
-            height: 34px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, var(--brand), var(--leaf));
-            box-shadow: 0 10px 20px rgba(22, 101, 52, 0.22);
-        }
-
-        .search {
-            flex: 1;
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .search form {
-            width: min(520px, 100%);
-            display: flex;
-            gap: 10px;
-        }
-
-        .search input {
-            flex: 1;
-            padding: 11px 12px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            outline: none;
-            background: white;
-        }
-
-        .btn {
-            border: 0;
-            border-radius: 12px;
-            padding: 11px 14px;
-            background: var(--brand);
-            color: white;
-            font-weight: 800;
-            cursor: pointer;
-        }
-
-        .btn:hover { background: var(--brand2); }
-
-        .hero {
-            margin: 18px 0 16px;
-            padding: 22px;
-            border-radius: 18px;
-            background: linear-gradient(135deg, rgba(22, 101, 52, 0.10), rgba(34, 197, 94, 0.08));
-            border: 1px solid rgba(229, 231, 235, 0.9);
-        }
-
-        .hero h1 { margin: 0 0 8px; font-size: 28px; }
-        .hero p { margin: 0; color: var(--muted); line-height: 1.6; }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 16px;
-            margin-top: 16px;
-        }
-
-        .card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-            display: flex;
-            flex-direction: column;
-            transition: transform 140ms ease, box-shadow 140ms ease;
-        }
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.10);
-        }
-
-        .media {
-            height: 160px;
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(134, 239, 172, 0.12));
-            position: relative;
-            display: grid;
-            place-items: center;
-            color: #64748b;
-            font-weight: 800;
-        }
-
-        .media img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        .media::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0.05) 0%, rgba(15, 23, 42, 0.65) 100%);
-            pointer-events: none;
-        }
-
-        .media-title {
-            position: absolute;
-            left: 12px;
-            right: 12px;
-            bottom: 10px;
-            z-index: 1;
-            color: white;
-            font-weight: 950;
-            letter-spacing: 0.2px;
-            text-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
-            line-height: 1.2;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        @media (max-width: 480px) {
-            .media { height: 140px; }
-        }
-
-        .body {
-            padding: 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            flex: 1;
-        }
-
-        .name {
-            font-weight: 900;
-            font-size: 16px;
-            line-height: 1.25;
-            display: none;
-        }
-
-        .desc {
-            color: var(--muted);
-            line-height: 1.45;
-            font-size: 14px;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            min-height: 60px;
-        }
-
-        .row {
-            margin-top: auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        .price {
-            font-weight: 950;
-            color: var(--success);
-        }
-
-        .buy {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 12px;
-            border-radius: 12px;
-            text-decoration: none;
-            background: var(--brand);
-            color: white;
-            font-weight: 900;
-            white-space: nowrap;
-        }
-        .buy:hover { background: var(--brand2); }
-
-        .pagination {
-            margin-top: 22px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .page-link {
-            padding: 10px 12px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            background: white;
-            text-decoration: none;
-            color: var(--text);
-            font-weight: 800;
-        }
-        .page-link[aria-current="page"] {
-            border-color: rgba(37, 99, 235, 0.45);
-            box-shadow: 0 10px 22px rgba(37, 99, 235, 0.10);
-        }
-        .empty {
-            padding: 18px;
-            border-radius: 16px;
-            border: 1px dashed #cbd5e1;
-            color: var(--muted);
-            background: white;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'product/home.css' %}">
 </head>
 <body>
     <header class="topbar">
         <div class="topbar-inner">
             <a class="brand" href="{% url 'home' %}">
                 <span class="logo" aria-hidden="true"></span>
-                Daily Store
+                Plant Store
             </a>
 
             <div class="search">
@@ -284,6 +20,13 @@
                     <input name="q" value="{{ q|default:'' }}" placeholder="Search products…" />
                     <button class="btn" type="submit">Search</button>
                 </form>
+            </div>
+
+            <div class="topbar-actions">
+                <a class="cart-link" href="{% url 'cart' %}">
+                    Cart
+                    <span class="cart-count">{{ cart_count|default:0 }}</span>
+                </a>
             </div>
         </div>
     </header>
@@ -299,11 +42,11 @@
                 <article class="card">
                     <div class="media">
                         <img
-                            src="{% if item.image_url %}{{ item.image_url }}{% else %}{% static 'product/plant-placeholder.svg' %}{% endif %}"
+                            src="{% if item.image_url %}{{ item.image_url }}{% else %}{% cycle 'https://images.pexels.com/photos/1084199/pexels-photo-1084199.jpeg?auto=compress&cs=tinysrgb&w=1200' 'https://images.pexels.com/photos/2123482/pexels-photo-2123482.jpeg?auto=compress&cs=tinysrgb&w=1200' 'https://images.pexels.com/photos/1400375/pexels-photo-1400375.jpeg?auto=compress&cs=tinysrgb&w=1200' 'https://images.pexels.com/photos/4750270/pexels-photo-4750270.jpeg?auto=compress&cs=tinysrgb&w=1200' 'https://images.pexels.com/photos/6208086/pexels-photo-6208086.jpeg?auto=compress&cs=tinysrgb&w=1200' %}{% endif %}"
                             alt="{{ item.name }}"
                             loading="lazy"
                             referrerpolicy="no-referrer"
-                            data-fallback="{% static 'product/plant-placeholder.svg' %}"
+                            data-fallback="https://images.pexels.com/photos/1084199/pexels-photo-1084199.jpeg?auto=compress&cs=tinysrgb&w=1200"
                         >
                         <div class="media-title">{{ item.name }}</div>
                     </div>
@@ -311,7 +54,14 @@
                         <div class="desc">{{ item.description }}</div>
                         <div class="row">
                             <div class="price">Rs. {{ item.price }}</div>
-                            <a class="buy" href="{% url 'checkout' item.id %}">Buy Now</a>
+                            <div class="row-actions">
+                                <form method="post" action="{% url 'cart_add' item.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                    <button class="add-cart" type="submit">Add to Cart</button>
+                                </form>
+                                <a class="buy" href="{% url 'checkout' item.id %}">Buy Now</a>
+                            </div>
                         </div>
                     </div>
                 </article>

@@ -20,6 +20,51 @@ from app.models import Order
 from app.models import product
 
 
+def _get_cart(request):
+    cart = request.session.get("cart")
+    if not isinstance(cart, dict):
+        cart = {}
+    return cart
+
+
+def _save_cart(request, cart):
+    request.session["cart"] = cart
+    request.session.modified = True
+
+
+def _cart_count(request):
+    return sum(int(qty) for qty in _get_cart(request).values())
+
+
+def _cart_items_and_total(request):
+    cart = _get_cart(request)
+    items = []
+    total = 0
+
+    for pid, qty in cart.items():
+        try:
+            product_id = int(pid)
+            quantity = max(1, int(qty))
+        except (TypeError, ValueError):
+            continue
+
+        item_product = product.objects.filter(id=product_id).first()
+        if not item_product:
+            continue
+
+        line_total = item_product.price * quantity
+        total += line_total
+        items.append(
+            {
+                "product": item_product,
+                "quantity": quantity,
+                "line_total": line_total,
+            }
+        )
+
+    return items, total
+
+
 def _get_or_create_payment_user(request):
     if request.user.is_authenticated:
         return request.user
@@ -50,8 +95,63 @@ class HomeView(View):
         return render(
             request,
             "product/home.html",
-            {"products": qs, "q": q},
+            {
+                "products": qs,
+                "q": q,
+                "cart_count": _cart_count(request),
+            },
         )
+
+
+class AddToCartView(View):
+    def post(self, request, product_id):
+        get_object_or_404(product, id=product_id)
+        cart = _get_cart(request)
+        key = str(product_id)
+        cart[key] = int(cart.get(key, 0)) + 1
+        _save_cart(request, cart)
+        return redirect(request.POST.get("next") or "home")
+
+
+class CartView(View):
+    def get(self, request):
+        items, total = _cart_items_and_total(request)
+        return render(
+            request,
+            "product/cart.html",
+            {
+                "items": items,
+                "cart_total": total,
+                "cart_count": _cart_count(request),
+            },
+        )
+
+
+class UpdateCartItemView(View):
+    def post(self, request, product_id):
+        cart = _get_cart(request)
+        key = str(product_id)
+        if key in cart:
+            try:
+                quantity = int(request.POST.get("quantity", "1"))
+            except ValueError:
+                quantity = 1
+
+            if quantity <= 0:
+                cart.pop(key, None)
+            else:
+                cart[key] = quantity
+            _save_cart(request, cart)
+        return redirect("cart")
+
+
+class RemoveCartItemView(View):
+    def post(self, request, product_id):
+        cart = _get_cart(request)
+        removed = cart.pop(str(product_id), None)
+        if removed is not None:
+            _save_cart(request, cart)
+        return redirect("cart")
 
 
 class CheckoutView(View):

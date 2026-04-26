@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart</title>
+    <link rel="stylesheet" href="{% static 'product/cart.css' %}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a class="brand" href="{% url 'home' %}">Daily Store</a>
+            <div class="cart-pill">Items: {{ cart_count }}</div>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1 class="title">Your Cart</h1>
+
+        {% if items %}
+            <section class="cart-list">
+                {% for item in items %}
+                    <article class="item">
+                        <div class="thumb">
+                            <img
+                                src="{% if item.product.image_url %}{{ item.product.image_url }}{% else %}https://images.pexels.com/photos/1084199/pexels-photo-1084199.jpeg?auto=compress&cs=tinysrgb&w=1200{% endif %}"
+                                alt="{{ item.product.name }}"
+                                loading="lazy"
+                                referrerpolicy="no-referrer"
+                                data-fallback="https://images.pexels.com/photos/1084199/pexels-photo-1084199.jpeg?auto=compress&cs=tinysrgb&w=1200"
+                            >
+                        </div>
+                        <div class="meta">
+                            <h3>{{ item.product.name }}</h3>
+                            <p class="muted">Rs. {{ item.product.price }} each</p>
+                            <p class="muted">Subtotal: Rs. {{ item.line_total }}</p>
+
+                            <div class="controls">
+                                <form method="post" action="{% url 'cart_update' item.product.id %}">
+                                    {% csrf_token %}
+                                    <input type="number" name="quantity" min="1" value="{{ item.quantity }}">
+                                    <button class="btn btn-update" type="submit">Update</button>
+                                </form>
+
+                                <form method="post" action="{% url 'cart_remove' item.product.id %}">
+                                    {% csrf_token %}
+                                    <button class="btn btn-remove" type="submit">Remove</button>
+                                </form>
+
+                                <a class="btn btn-checkout" href="{% url 'checkout' item.product.id %}">Buy Now</a>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </section>
+
+            <section class="summary">
+                <div class="total">Total: Rs. {{ cart_total }}</div>
+                <div class="summary-actions">
+                    <a class="btn btn-home" href="{% url 'home' %}">Continue Shopping</a>
+                </div>
+            </section>
+        {% else %}
+            <div class="empty">
+                Your cart is empty. Add products from the home page.
+            </div>
+        {% endif %}
+    </main>
+
+    <script>
+        (function () {
+            const imgs = document.querySelectorAll('img[data-fallback]');
+            for (const img of imgs) {
+                img.addEventListener('error', function () {
+                    const fallback = img.getAttribute('data-fallback');
+                    if (fallback && img.src !== fallback) img.src = fallback;
+                });
+            }
+        })();
+    </script>
+</body>
+</html>

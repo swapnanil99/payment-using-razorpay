@@ -1,42 +1,21 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment Successful</title>
-    <style>
-        body {
-            margin: 0;
-            min-height: 100vh;
-            display: grid;
-            place-items: center;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #ecfdf5 0%, #f8fafc 60%, #dcfce7 100%);
-            padding: 24px;
-        }
-        .card {
-            width: min(720px, 100%);
-            background: white;
-            border-radius: 18px;
-            padding: 36px;
-            box-shadow: 0 20px 55px rgba(15, 23, 42, 0.12);
-            text-align: center;
-        }
-        h1 { margin: 0 0 10px; }
-        p { margin: 0 auto 22px; max-width: 520px; color: #475569; line-height: 1.6; }
-        a {
-            display: inline-block;
-            padding: 12px 18px;
-            border-radius: 999px;
-            background: #16a34a;
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'product/success.css' %}">
 </head>
 <body>
     <div class="card">
+        <div class="media">
+            <img
+                src="https://images.pexels.com/photos/1084199/pexels-photo-1084199.jpeg?auto=compress&cs=tinysrgb&w=1200"
+                alt="Payment success"
+                loading="lazy"
+            >
+        </div>
         <h1>Payment Successful</h1>
         <p>Your test payment was verified successfully. You can go back and try another product.</p>
         <a href="{% url 'home' %}">Back to Home</a>

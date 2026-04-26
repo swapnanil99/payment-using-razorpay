@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,46 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout</title>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
-            text-align: center;
-            padding: 48px 16px;
-        }
-
-        .container {
-            background: white;
-            max-width: 350px;
-            margin: auto;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .price {
-            font-size: 20px;
-            color: green;
-            margin-bottom: 20px;
-        }
-
-        button {
-            padding: 10px 20px;
-            background: #3399cc;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        button:hover {
-            background: #287aa3;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'product/checkout.css' %}">
 </head>
 <body>
     <div class="container">
+        <div class="media">
+            <img
+                src="{% if product.image_url %}{{ product.image_url }}{% else %}https://images.pexels.com/photos/1084199/pexels-photo-1084199.jpeg?auto=compress&cs=tinysrgb&w=1200{% endif %}"
+                alt="{{ product.name }}"
+                loading="lazy"
+                referrerpolicy="no-referrer"
+                data-fallback="https://images.pexels.com/photos/1084199/pexels-photo-1084199.jpeg?auto=compress&cs=tinysrgb&w=1200"
+            >
+        </div>
         <h2>Checkout</h2>
         <p>Product: {{ product.name }}</p>
         <p>{{ product.description }}</p>
@@ -103,6 +77,16 @@
                 btn.textContent = "Pay Now";
             }
         });
+
+        (function () {
+            const imgs = document.querySelectorAll('img[data-fallback]');
+            for (const img of imgs) {
+                img.addEventListener('error', function () {
+                    const fallback = img.getAttribute('data-fallback');
+                    if (fallback && img.src !== fallback) img.src = fallback;
+                });
+            }
+        })();
     </script>
 </body>
 </html>
