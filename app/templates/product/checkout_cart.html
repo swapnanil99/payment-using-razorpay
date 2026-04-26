@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart Checkout</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <link rel="stylesheet" href="{% static 'product/checkout.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h2>Checkout Cart</h2>
+        <p>Items: {{ cart_count }}</p>
+        <p class="price">Total: Rs. {{ cart_total }}</p>
+
+        <div style="margin: 12px 0; text-align: left;">
+            {% for item in items %}
+                <p style="margin: 6px 0;">{{ item.product.name }} x {{ item.quantity }} = Rs. {{ item.line_total }}</p>
+            {% endfor %}
+        </div>
+
+        <button id="rzp-cart-button">Pay for All Items</button>
+        <p id="pay-error" style="display:none; margin: 14px 0 0; color: #b91c1c;"></p>
+    </div>
+
+    <script>
+        document.getElementById("rzp-cart-button").addEventListener("click", async function (e) {
+            e.preventDefault();
+            const btn = e.currentTarget;
+            const errEl = document.getElementById("pay-error");
+            errEl.style.display = "none";
+            errEl.textContent = "";
+            btn.disabled = true;
+            btn.textContent = "Starting...";
+
+            try {
+                const createResp = await fetch("{% url 'create_cart_payment' %}", {
+                    method: "POST",
+                    credentials: "same-origin",
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                });
+                const data = await createResp.json();
+
+                if (!createResp.ok) {
+                    throw new Error(data.error || "Failed to create payment order");
+                }
+
+                const options = {
+                    key: data.key || data.key_id,
+                    amount: data.amount,
+                    currency: data.currency || "INR",
+                    name: "Razorpay Demo Store",
+                    description: data.description || "Cart payment",
+                    order_id: data.order_id,
+                    callback_url: data.callback_url,
+                    redirect: true,
+                    theme: {
+                        color: "#3399cc"
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.on("payment.failed", function () {
+                    window.location.href = "{% url 'payment_failed' %}";
+                });
+                rzp.open();
+            } catch (error) {
+                errEl.textContent = error.message || "Something went wrong while starting payment.";
+                errEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Pay for All Items";
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 import base64
 import hashlib
 import hmac
+import time
 
 import requests
 from requests.exceptions import RequestException
@@ -160,6 +161,23 @@ class CheckoutView(View):
         return render(request, "product/checkout.html", {"product": selected_product})
 
 
+class CartCheckoutView(View):
+    def get(self, request):
+        items, total = _cart_items_and_total(request)
+        if not items:
+            return redirect("cart")
+
+        return render(
+            request,
+            "product/checkout_cart.html",
+            {
+                "items": items,
+                "cart_total": total,
+                "cart_count": _cart_count(request),
+            },
+        )
+
+
 @method_decorator(csrf_exempt, name="dispatch")
 class CreatePaymentView(View):
     def post(self, request, product_id):
@@ -214,6 +232,10 @@ class CreatePaymentView(View):
             razorpay_order_id=razorpay_order["id"],
         )
 
+        request.session["pending_single_razorpay_order_id"] = razorpay_order["id"]
+        request.session["pending_single_product_id"] = selected_product.id
+        request.session.modified = True
+
         callback_url = request.build_absolute_uri(reverse("payment_verify"))
         return JsonResponse(
             {
@@ -224,6 +246,81 @@ class CreatePaymentView(View):
                 "currency": "INR",
                 "product_name": selected_product.name,
                 "description": selected_product.description,
+                "callback_url": callback_url,
+            }
+        )
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class CreateCartPaymentView(View):
+    def post(self, request):
+        if not settings.RAZORPAY_KEY_ID or not settings.RAZORPAY_KEY_SECRET:
+            return JsonResponse(
+                {"error": "RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET is missing in environment."},
+                status=500,
+            )
+
+        items, total = _cart_items_and_total(request)
+        if not items:
+            return JsonResponse({"error": "Your cart is empty."}, status=400)
+
+        payment_user = _get_or_create_payment_user(request)
+        amount_paise = int(total * 100)
+
+        order_data = {
+            "amount": amount_paise,
+            "currency": "INR",
+            "receipt": f"cart_{payment_user.id}_{int(time.time())}",
+        }
+
+        headers = {"Content-Type": "application/json"}
+        headers.update(_basic_auth_header(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+        session = requests.Session()
+        session.trust_env = False
+        try:
+            response = session.post(
+                "https://api.razorpay.com/v1/orders",
+                json=order_data,
+                headers=headers,
+                timeout=20,
+            )
+        except RequestException as e:
+            return JsonResponse(
+                {"error": "Network error while contacting Razorpay", "details": str(e)},
+                status=502,
+            )
+
+        if response.status_code not in (200, 201):
+            return JsonResponse(
+                {"error": "Unable to create Razorpay order", "details": response.text},
+                status=502,
+            )
+
+        razorpay_order = response.json()
+        for item in items:
+            Order.objects.create(
+                user=payment_user,
+                product=item["product"],
+                quantity=item["quantity"],
+                amount=item["product"].price,
+                total_price=item["line_total"],
+                razorpay_order_id=razorpay_order["id"],
+            )
+
+        request.session["pending_cart_razorpay_order_id"] = razorpay_order["id"]
+        request.session.modified = True
+
+        callback_url = request.build_absolute_uri(reverse("payment_verify"))
+        return JsonResponse(
+            {
+                "order_id": razorpay_order["id"],
+                "key": settings.RAZORPAY_KEY_ID,
+                "key_id": settings.RAZORPAY_KEY_ID,
+                "amount": amount_paise,
+                "currency": "INR",
+                "product_name": "Cart Checkout",
+                "description": f"{len(items)} item(s) in cart",
                 "callback_url": callback_url,
             }
         )
@@ -249,11 +346,31 @@ class PaymentVerifyView(View):
         if not hmac.compare_digest(expected_signature, razorpay_signature):
             return redirect("payment_failed")
 
-        order = get_object_or_404(Order, razorpay_order_id=razorpay_order_id)
-        order.razorpay_payment_id = razorpay_payment_id
-        order.razorpay_signature = razorpay_signature
-        order.is_paid = True
-        order.save(update_fields=["razorpay_payment_id", "razorpay_signature", "is_paid"])
+        orders = Order.objects.filter(razorpay_order_id=razorpay_order_id)
+        if not orders.exists():
+            return redirect("payment_failed")
+
+        orders.update(
+            razorpay_payment_id=razorpay_payment_id,
+            razorpay_signature=razorpay_signature,
+            is_paid=True,
+        )
+
+        pending_cart_order_id = request.session.get("pending_cart_razorpay_order_id")
+        if pending_cart_order_id == razorpay_order_id:
+            request.session["cart"] = {}
+            request.session.pop("pending_cart_razorpay_order_id", None)
+            request.session.modified = True
+
+        pending_single_order_id = request.session.get("pending_single_razorpay_order_id")
+        if pending_single_order_id == razorpay_order_id:
+            pending_product_id = request.session.get("pending_single_product_id")
+            cart = _get_cart(request)
+            cart.pop(str(pending_product_id), None)
+            _save_cart(request, cart)
+            request.session.pop("pending_single_razorpay_order_id", None)
+            request.session.pop("pending_single_product_id", None)
+            request.session.modified = True
 
         return redirect("payment_success")
 

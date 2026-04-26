@@ -147,6 +147,20 @@ input[type="number"] {
     justify-content: center;
 }
 
+.btn-buy-all {
+    background: var(--brand);
+    color: white;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-buy-all:hover,
+.btn-checkout:hover {
+    background: var(--brand2);
+}
+
 .btn-home {
     background: white;
     color: var(--text);

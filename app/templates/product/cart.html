@@ -58,6 +58,7 @@
             <section class="summary">
                 <div class="total">Total: Rs. {{ cart_total }}</div>
                 <div class="summary-actions">
+                    <a class="btn btn-buy-all" href="{% url 'checkout_cart' %}">Buy All Cart Products</a>
                     <a class="btn btn-home" href="{% url 'home' %}">Continue Shopping</a>
                 </div>
             </section>
