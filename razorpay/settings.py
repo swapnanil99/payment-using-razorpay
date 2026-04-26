@@ -23,7 +23,7 @@ DEBUG = True
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    ".vercel.app",
+    "payment-using-razorpay.onrender.com",
     "localhost",
     "127.0.0.1",
 ]
