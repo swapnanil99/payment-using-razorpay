@@ -331,3 +331,57 @@ body {
     color: var(--muted);
     background: white;
 }
+
+@media (max-width: 900px) {
+    .topbar-inner {
+        flex-wrap: wrap;
+        align-items: flex-start;
+    }
+
+    .search {
+        order: 3;
+        width: 100%;
+    }
+
+    .search form {
+        width: 100%;
+    }
+
+    .topbar-actions {
+        margin-left: auto;
+    }
+}
+
+@media (max-width: 640px) {
+    .hero {
+        padding: 16px;
+        margin-top: 14px;
+    }
+
+    .hero h1 {
+        font-size: 24px;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .row-actions {
+        width: 100%;
+    }
+
+    .row-actions form,
+    .row-actions .buy {
+        flex: 1;
+    }
+
+    .add-cart,
+    .buy {
+        width: 100%;
+    }
+}

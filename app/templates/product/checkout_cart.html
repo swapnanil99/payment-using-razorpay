@@ -14,9 +14,9 @@
         <p>Items: {{ cart_count }}</p>
         <p class="price">Total: Rs. {{ cart_total }}</p>
 
-        <div style="margin: 12px 0; text-align: left;">
+        <div class="items-list">
             {% for item in items %}
-                <p style="margin: 6px 0;">{{ item.product.name }} x {{ item.quantity }} = Rs. {{ item.line_total }}</p>
+                <p>{{ item.product.name }} x {{ item.quantity }} = Rs. {{ item.line_total }}</p>
             {% endfor %}
         </div>
 

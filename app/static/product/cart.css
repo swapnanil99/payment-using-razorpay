@@ -204,11 +204,48 @@ input[type="number"] {
 }
 
 @media (max-width: 640px) {
+    .topbar-inner {
+        flex-wrap: wrap;
+    }
+
+    .container {
+        padding-top: 14px;
+    }
+
     .item {
         grid-template-columns: 1fr;
     }
 
     .thumb {
         aspect-ratio: 4 / 3;
+    }
+
+    .controls form {
+        width: 100%;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .controls .btn-checkout {
+        width: 100%;
+    }
+
+    .controls .btn {
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .summary {
+        align-items: stretch;
+    }
+
+    .summary-actions {
+        width: 100%;
+    }
+
+    .summary-actions .btn {
+        width: 100%;
     }
 }

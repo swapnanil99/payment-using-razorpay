@@ -37,6 +37,21 @@ body {
     margin-bottom: 20px;
 }
 
+.items-list {
+    margin: 12px 0;
+    text-align: left;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: #f8fafc;
+}
+
+.items-list p {
+    margin: 6px 0;
+    color: #334155;
+    line-height: 1.4;
+}
+
 button {
     padding: 10px 20px;
     background: #3399cc;
@@ -52,8 +67,25 @@ button:hover {
 }
 
 @media (max-width: 480px) {
+    body {
+        padding: 24px 12px;
+    }
+
+    .container {
+        padding: 18px;
+    }
+
+    h2 {
+        margin-top: 8px;
+        margin-bottom: 8px;
+    }
+
     .media {
         aspect-ratio: 1 / 1;
         min-height: 140px;
+    }
+
+    button {
+        width: 100%;
     }
 }

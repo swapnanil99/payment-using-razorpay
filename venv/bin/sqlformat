@@ -1,4 +1,4 @@
-#!/Users/swapnanil/Desktop/Django/django_tutorial/razorpay/venv/bin/python3.11
+#!/Users/swapnanil/Desktop/Django/razorpay/venv/bin/python3.11
 # -*- coding: utf-8 -*-
 import re
 import sys
